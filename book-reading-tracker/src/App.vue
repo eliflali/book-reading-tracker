@@ -1,48 +1,92 @@
 <template>
   <div class="app" :class="{ 'dark-mode': isDarkMode }">
-    <header class="app-header">
-      <h1>Book Reading Tracker</h1>
-      <button class="theme-toggle" @click="toggleTheme">
-        {{ isDarkMode ? "☀️" : "🌙" }}
-      </button>
-    </header>
+    <Notification
+      :show="showNotification"
+      :message="notificationMessage"
+      :type="notificationType"
+    />
+    <Header
+      :isDarkMode="isDarkMode"
+      @open-book-form="showBookForm = true"
+      @toggle-theme="toggleTheme"
+    />
+    <StatsBar :books-count="books.length" :pages-count="totalPages" />
+
+    <Modal v-if="showBookForm" @close="showBookForm = false">
+      <BookForm @add-book="handleAddBook" />
+    </Modal>
 
     <main class="app-main">
       <div class="container">
-        <BookForm @add-book="addBook" />
         <BookList
           :books="books"
           :favorites="favorites"
           @toggle-favorite="toggleFavorite"
-          @delete-book="deleteBook"
+          @delete-book="handleDeleteBook"
         />
       </div>
     </main>
 
     <footer class="app-footer">
-      <p>© 2024 Book Reading Tracker</p>
+      <p>Book Reading Tracker - Elif LALE</p>
     </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import Header from "./components/Header.vue";
+import StatsBar from "./components/StatsBar.vue";
+import Modal from "./components/Modal.vue";
 import BookForm from "./components/BookForm.vue";
 import BookList from "./components/BookList.vue";
 import { useBooks } from "./composables/useBooks";
 import { useStorage } from "@vueuse/core";
+import Notification from "./components/Notification.vue";
 
 const { books, favorites, addBook, deleteBook, toggleFavorite } = useBooks();
 const isDarkMode = useStorage("dark-mode", false);
+const showBookForm = ref(false);
+
+const totalPages = computed(() =>
+  books.value.reduce((sum, book) => sum + (book.pages || 0), 0)
+);
+
+const notificationMessage = ref("");
+const notificationType = ref("success");
+const showNotification = ref(false);
+
+const handleAddBook = (book) => {
+  addBook(book);
+  showBookForm.value = false;
+  triggerNotification("Book has been successfully added", "success");
+};
+
+const handleDeleteBook = (bookId) => {
+  deleteBook(bookId);
+  triggerNotification("Book has been successfully removed from list", "success");
+};
 
 const toggleTheme = () => {
   isDarkMode.value = !isDarkMode.value;
 };
 
+watch(isDarkMode, (val) => {
+  document.body.classList.toggle("dark-mode", val);
+});
+
 onMounted(() => {
-  // Apply dark mode class to body for better styling
   document.body.classList.toggle("dark-mode", isDarkMode.value);
 });
+
+function triggerNotification(message, type = "success") {
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
+  setTimeout(() => {
+    showNotification.value = false;
+  }, 2500);
+}
 </script>
 
 <style lang="scss">
@@ -83,17 +127,24 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+body, .app {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s, color 0.3s;
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
   line-height: 1.6;
-  transition: background-color 0.3s, color 0.3s;
 }
 
 .app {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -128,7 +179,9 @@ body {
 
 .app-main {
   flex: 1;
+  width: 100%;
   padding: 2rem 0;
+  position: relative;
 
   .container {
     max-width: 1200px;
@@ -139,6 +192,7 @@ body {
 
 .app-footer {
   padding: 1rem;
+  width: 100%;
   text-align: center;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);

@@ -38,14 +38,23 @@
     </div>
 
     <div class="books-container">
-      <BookItem
+      <div
         v-for="book in filteredBooks"
         :key="book.id"
-        :book="book"
-        :is-favorite="favorites.includes(book.id)"
-        @toggle-favorite="toggleFavorite"
-        @delete-book="deleteBook"
-      />
+        class="book-card"
+      >
+        <img
+          class="book-cover"
+          src="../assets/placeholder.png"
+          alt="Book cover placeholder"
+        />
+        <BookItem
+          :book="book"
+          :is-favorite="favorites.includes(book.id)"
+          @toggle-favorite="toggleFavorite"
+          @delete-book="deleteBook"
+        />
+      </div>
     </div>
 
     <p v-if="!filteredBooks.length" class="no-books">
@@ -111,9 +120,9 @@ const deleteBook = (bookId) => {
 
 <style lang="scss" scoped>
 .book-list {
-  max-width: 800px;
+  width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1rem 0;
 
   .controls {
     display: flex;
@@ -215,9 +224,40 @@ const deleteBook = (bookId) => {
   }
 
   .books-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem 0;
+  }
+
+  .book-card {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    align-items: center;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+    min-height: 320px;
+    min-width: 0;
+    position: relative;
+    transition: box-shadow 0.2s;
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    }
+  }
+
+  .book-cover {
+    width: 100%;
+    max-width: 120px;
+    height: 160px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    background: #eaeaea;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
 
   .no-books {
@@ -226,6 +266,18 @@ const deleteBook = (bookId) => {
     padding: 2rem;
     background: var(--bg-secondary);
     border-radius: 8px;
+    grid-column: 1 / -1;
   }
 }
-</style>
+
+@media (max-width: 1100px) {
+  .book-list .books-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .book-list .books-container {
+    grid-template-columns: 1fr;
+  }
+}
+</style> 
