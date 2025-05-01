@@ -9,6 +9,7 @@
         required
         placeholder="Enter book title"
         :class="{ error: v$.title.$error }"
+        @blur="v$.title.$touch()"
       />
       <span v-if="v$.title.$error" class="error-message">
         Title is required
@@ -56,12 +57,14 @@ import { required } from "@vuelidate/validators";
 
 const emit = defineEmits(["add-book"]);
 
-const form = reactive({
+const initialFormState = {
   title: "",
   author: "",
   pages: null,
   status: "to-read",
-});
+};
+
+const form = reactive({ ...initialFormState });
 
 const rules = {
   title: { required },
@@ -72,13 +75,15 @@ const v$ = useVuelidate(rules, form);
 const handleSubmit = async () => {
   const isValid = await v$.value.$validate();
   if (isValid) {
-    emit("add-book", { ...form });
-    form.title = "";
-    form.author = "";
-    form.pages = null;
-    form.status = "to-read";
-    v$.value.$reset();
+    const formData = { ...form };
+    resetForm();
+    emit("add-book", formData);
   }
+};
+
+const resetForm = () => {
+  Object.assign(form, initialFormState);
+  v$.value.$reset();
 };
 </script>
 

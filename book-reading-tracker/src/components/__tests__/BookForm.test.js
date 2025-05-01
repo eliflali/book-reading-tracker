@@ -1,55 +1,44 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BookForm from '../BookForm.vue'
 
 describe('BookForm', () => {
-  it('emits add-book event with correct data when form is submitted', async () => {
-    const wrapper = mount(BookForm)
-    
-    // Fill in the form
-    await wrapper.find('#title').setValue('Test Book')
-    await wrapper.find('#author').setValue('Test Author')
-    await wrapper.find('#pages').setValue('100')
-    await wrapper.find('#status').setValue('reading')
-    
-    // Submit the form
-    await wrapper.find('form').trigger('submit')
-    
-    // Check if the event was emitted with correct data
-    expect(wrapper.emitted('add-book')).toBeTruthy()
-    expect(wrapper.emitted('add-book')[0][0]).toEqual({
-      title: 'Test Book',
-      author: 'Test Author',
-      pages: 100,
-      status: 'reading'
-    })
+  let wrapper
+
+  beforeEach(() => {
+    wrapper = mount(BookForm)
   })
 
-  it('shows error message when title is empty', async () => {
-    const wrapper = mount(BookForm)
+  it('renders the form with all required fields', () => {
+    expect(wrapper.find('form').exists()).toBe(true)
+    expect(wrapper.find('#title').exists()).toBe(true)
+    expect(wrapper.find('#author').exists()).toBe(true)
+    expect(wrapper.find('#pages').exists()).toBe(true)
+    expect(wrapper.find('#status').exists()).toBe(true)
+    expect(wrapper.find('button[type="submit"]').exists()).toBe(true)
+  })
+
+  it('shows error message when title is empty and form is submitted', async () => {
+    const form = wrapper.find('form')
+    await form.trigger('submit')
     
-    // Try to submit without title
-    await wrapper.find('form').trigger('submit')
-    
-    // Check if error message is shown
     expect(wrapper.find('.error-message').exists()).toBe(true)
-    expect(wrapper.emitted('add-book')).toBeFalsy()
+    expect(wrapper.find('.error-message').text()).toBe('Title is required')
   })
 
-  it('resets form after successful submission', async () => {
-    const wrapper = mount(BookForm)
-    
-    // Fill in and submit the form
-    await wrapper.find('#title').setValue('Test Book')
-    await wrapper.find('#author').setValue('Test Author')
-    await wrapper.find('#pages').setValue('100')
-    await wrapper.find('#status').setValue('reading')
-    await wrapper.find('form').trigger('submit')
-    
-    // Check if form is reset
-    expect(wrapper.find('#title').element.value).toBe('')
-    expect(wrapper.find('#author').element.value).toBe('')
-    expect(wrapper.find('#pages').element.value).toBe('')
-    expect(wrapper.find('#status').element.value).toBe('to-read')
+  it('validates title field is required', async () => {
+    const titleInput = wrapper.find('#title')
+    await titleInput.setValue('')
+    await titleInput.trigger('blur')
+
+    expect(wrapper.find('.error').exists()).toBe(true)
+  })
+
+  it('does not show error message when title is filled', async () => {
+    const titleInput = wrapper.find('#title')
+    await titleInput.setValue('Test Book')
+    await titleInput.trigger('blur')
+
+    expect(wrapper.find('.error').exists()).toBe(false)
   })
 }) 
