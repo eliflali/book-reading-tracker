@@ -5,8 +5,8 @@
       <span class="header__appname">Bookapp</span>
     </div>
     <nav class="header__nav">
-      <a href="#" class="header__nav-link">About</a>
-      <a href="#" class="header__nav-link">Books</a>
+      <router-link to="/about" class="header__nav-link">About</router-link>
+      <router-link to="/" class="header__nav-link">Books</router-link>
     </nav>
     <div class="header__right">
       <button class="header__btn header__btn--primary" @click="$emit('open-book-form')">Add book form</button>

@@ -1,16 +1,17 @@
 # Book Reading Tracker
 
-A simple and elegant web application to track your reading progress. Built with Vue 3 and the Composition API.
-
 ## Features
 
-- 📚 Add books with title, author, page count, and reading status
-- 🔍 Search and filter books by title, author, and reading status
-- ⭐ Mark books as favorites
-- 🌓 Dark mode support
-- 💾 Data persistence using localStorage
-- 📱 Responsive design for all devices
-- 🧪 Unit tests for core functionality
+- Add books with title, author, page count, and reading status
+- Update and delete books
+- Filter by reading status and search by title or author
+- Mark books as favorites
+- Dark mode support
+- Data persistence using localStorage
+- Responsive design for all devices
+- Summary info: see counts for each reading status
+- About page (via Vue Router)
+- Unit tests for core functionality
 
 ## Project Setup
 

@@ -18,12 +18,7 @@
 
     <main class="app-main">
       <div class="container">
-        <BookList
-          :books="books"
-          :favorites="favorites"
-          @toggle-favorite="toggleFavorite"
-          @delete-book="handleDeleteBook"
-        />
+        <router-view />
       </div>
     </main>
 
